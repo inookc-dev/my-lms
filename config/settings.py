@@ -8,20 +8,17 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 import os
 from pathlib import Path
 
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY: SECRET_KEY - 환경 변수에서 가져옴 (없으면 개발용 기본값)
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-dev-only-change-in-production",
-)
-
-# SECURITY: DEBUG - 환경 변수로 제어 (배포 시 반드시 False)
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
+# SECURITY: SECRET_KEY, DEBUG - .env 파일에서 로드 (python-decouple)
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-dev-only-change-in-production")
+DEBUG = config("DEBUG", default=True, cast=bool)
 
 # ALLOWED_HOSTS - 환경 변수 또는 기본값 (쉼표로 구분된 도메인)
-_allowed = os.environ.get("DJANGO_ALLOWED_HOSTS", "")
+_allowed = config("DJANGO_ALLOWED_HOSTS", default="")
 ALLOWED_HOSTS = [h.strip() for h in _allowed.split(",") if h.strip()] or ["*"]
 
 

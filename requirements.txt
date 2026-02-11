@@ -2,6 +2,7 @@
 # 설치: pip install -r requirements.txt
 
 asgiref==3.11.1
+python-decouple>=3.8
 Django==6.0.2
 django-filter==25.2
 djangorestframework==3.16.1
