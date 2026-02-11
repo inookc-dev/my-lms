@@ -14,8 +14,8 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY: SECRET_KEY, DEBUG - .env 파일에서 로드 (python-decouple)
-SECRET_KEY = config("SECRET_KEY", default="django-insecure-dev-only-change-in-production")
-DEBUG = config("DEBUG", default=True, cast=bool)
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 # ALLOWED_HOSTS - 환경 변수 또는 기본값 (쉼표로 구분된 도메인)
 _allowed = config("DJANGO_ALLOWED_HOSTS", default="")
