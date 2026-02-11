@@ -1,0 +1,200 @@
+{% extends "courses/course_base.html" %}
+
+{% block course_breadcrumbs %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'course_detail' course.id %}">{{ course.course_code }}</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'video_list' course.id %}">강의 목차</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ video.title }}
+      </li>
+    </ol>
+  </nav>
+{% endblock %}
+
+{% block course_content %}
+  <div class="position-relative">
+    <!-- 우측 상단: 진도율 및 출석 상태 -->
+    <div class="position-absolute top-0 end-0 p-2 bg-white border rounded shadow-sm" style="z-index: 10;">
+      <div class="small mb-1">
+        <strong>진도율:</strong>
+        <span id="progress-percent">{{ progress_percent|default:0 }}%</span>
+      </div>
+      <div class="small">
+        <strong>출석 상태:</strong>
+        <span id="progress-status">{{ progress_status|default:"미완료" }}</span>
+      </div>
+    </div>
+
+    <h2 class="h5 mb-3">{{ video.title }}</h2>
+
+    {% if video_src %}
+    <div class="ratio ratio-16x9 mb-3">
+      <video
+        id="main-video-player"
+        class="rounded"
+        controls
+        playsinline
+        preload="metadata"
+        data-video-id="{{ video.id }}"
+        data-duration="{{ video.duration }}"
+      >
+        <source src="{{ video_src }}" type="video/mp4" />
+        브라우저가 동영상을 지원하지 않습니다.
+      </video>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+      재생할 동영상이 없습니다. (video_url 또는 video_file을 설정해주세요.)
+    </div>
+    {% endif %}
+
+    <p class="text-muted small mb-0">
+      총 길이: {{ video.duration }}초
+    </p>
+  </div>
+
+  <div class="mt-3">
+    <a href="{% url 'video_list' course.id %}" class="btn btn-outline-secondary btn-sm">
+      &laquo; 강의 목차로 돌아가기
+    </a>
+  </div>
+
+  {% if video_src %}
+  <!-- CSRF 토큰 -->
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+  <script>
+  console.log("1. 스크립트 로드됨");
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('main-video-player');
+    console.log("2. 비디오 태그 찾음:", video);
+
+    if (!video) {
+      console.error("비디오 요소를 찾을 수 없음");
+      return;
+    }
+
+    const videoId = parseInt(video.dataset.videoId, 10);
+    const UPDATE_URL = "{% url 'update_progress' %}";
+
+    const percentEl = document.getElementById('progress-percent');
+    const statusEl = document.getElementById('progress-status');
+    const sidebarPercent = document.getElementById('sidebar-percent');
+    const sidebarStatus = document.getElementById('sidebar-status');
+
+    let totalDuration = 1;
+    let lastSent = 0;
+    const INTERVAL_MS = 10000;
+
+    function getCsrfToken() {
+      const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+      return input ? input.value : '';
+    }
+
+    function updateDisplay(percent, isCompleted) {
+      const p = Math.round(percent);
+      if (percentEl) percentEl.textContent = p + '%';
+      if (sidebarPercent) sidebarPercent.textContent = p + '%';
+      const status = isCompleted ? '완료' : '미완료';
+      if (statusEl) statusEl.textContent = status;
+      if (sidebarStatus) sidebarStatus.textContent = status;
+    }
+
+    video.addEventListener('loadedmetadata', function() {
+      totalDuration = video.duration || 1;
+      console.log('동영상 로드 완료. 총 시간:', totalDuration, '초');
+    });
+
+    video.addEventListener('play', function() {
+      console.log('영상 재생 시작!');
+      lastSent = Date.now();
+    });
+
+    function sendProgress() {
+      const currentTime = video.currentTime || 0;
+      const duration = totalDuration;
+      const csrfToken = getCsrfToken();
+
+      console.log('서버로 데이터 전송 시도: 시간 ' + Math.round(currentTime) + '초 (duration: ' + duration + ')');
+
+      fetch(UPDATE_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          video_id: videoId,
+          watched_time: currentTime,
+          duration: duration
+        }),
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
+      .then(function(response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function(data) {
+        console.log('서버 응답: 성공', data);
+        const percent = data.percent ?? data.progress ?? 0;
+        updateDisplay(percent, data.is_completed || false);
+      })
+      .catch(function(err) {
+        console.log('서버 응답: 실패', err);
+      });
+    }
+
+    video.addEventListener('timeupdate', function() {
+      console.log("3. 재생 중... 시간:", video.currentTime);
+
+      const duration = totalDuration;
+      const p = duration > 0 ? (video.currentTime / duration * 100) : 0;
+      updateDisplay(p, duration > 0 && video.currentTime >= duration * 0.95);
+
+      const now = Date.now();
+      if (now - lastSent >= INTERVAL_MS) {
+        lastSent = now;
+        sendProgress();
+      }
+    });
+
+    video.addEventListener('ended', function() {
+      sendProgress();
+    });
+
+    {% if progress %}
+    video.addEventListener('loadeddata', function() {
+      video.currentTime = {{ progress.watched_time|default:0 }};
+    }, { once: true });
+    {% endif %}
+  });
+  </script>
+  {% endif %}
+{% endblock %}
+
+{% block course_sidebar %}
+  <div class="mb-4">
+    <h6 class="text-uppercase text-muted small mb-2">진도 정보</h6>
+    <ul class="list-group list-group-flush small">
+      <li class="list-group-item px-0 d-flex justify-content-between">
+        <span>진도율</span>
+        <strong id="sidebar-percent">{{ progress_percent|default:0 }}%</strong>
+      </li>
+      <li class="list-group-item px-0 d-flex justify-content-between">
+        <span>출석</span>
+        <strong id="sidebar-status">{{ progress_status|default:"미완료" }}</strong>
+      </li>
+    </ul>
+  </div>
+  {{ block.super }}
+{% endblock %}

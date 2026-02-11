@@ -1,0 +1,4 @@
+"""
+Core app management package.
+"""
+

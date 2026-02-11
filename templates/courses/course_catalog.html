@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}전체 강의 (수강신청) | K-LMS{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <h1 class="h4 mb-4">전체 강의 (수강신청)</h1>
+
+    {% if course_list %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>강의코드</th>
+              <th>강의명</th>
+              <th>학기</th>
+              <th>강사</th>
+              <th class="text-end">수강신청</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in course_list %}
+              <tr>
+                <td>{{ item.course.course_code }}</td>
+                <td>
+                  <a href="{% url 'course_detail' item.course.id %}" class="text-decoration-none">
+                    {{ item.course.name }}
+                  </a>
+                </td>
+                <td>{{ item.course.term.name }}</td>
+                <td>{{ item.teacher }}</td>
+                <td class="text-end">
+                  {% if item.is_enrolled %}
+                    <span class="btn btn-secondary btn-sm disabled">이미 수강 중</span>
+                  {% else %}
+                    <form method="post" action="{% url 'enroll_course' item.course.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-primary btn-sm">수강신청</button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        등록된 강의가 없습니다.
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

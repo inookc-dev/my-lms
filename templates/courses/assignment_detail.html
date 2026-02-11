@@ -1,0 +1,213 @@
+{% extends "courses/course_base.html" %}
+
+{% block course_breadcrumbs %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'course_detail' course.id %}">Modules</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ assignment.title }}
+      </li>
+    </ol>
+  </nav>
+{% endblock %}
+
+{% block course_content %}
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h1 class="h4 mb-1">{{ assignment.title }}</h1>
+      <p class="text-muted mb-0">
+        Points: {{ assignment.points_possible }}
+        {% if assignment.due_at %}· Due: {{ assignment.due_at }}{% endif %}
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      {% if is_teacher %}
+        <a
+          class="btn btn-primary btn-lg"
+          href="{% url 'submission_list' assignment.id %}"
+        >
+          채점하기 (SpeedGrader)
+        </a>
+      {% else %}
+        <a href="#과제제출영역" class="btn btn-primary btn-lg">
+          과제 제출
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <article class="card mb-4">
+    <div class="card-body">
+      <div class="assignment-body">
+        {{ assignment.description|safe }}
+      </div>
+    </div>
+  </article>
+
+  <!-- 과제 제출 영역 (한국 게시판 스타일 - 항상 노출) -->
+  {% if not is_teacher %}
+  <div id="과제제출영역" class="card mb-4 border-primary">
+    <div class="card-header bg-light">
+      <h2 class="h5 mb-0">과제 제출</h2>
+    </div>
+    <div class="card-body">
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        action="{% url 'submit_assignment' assignment.id %}"
+      >
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="id_body" class="form-label">텍스트 입력</label>
+          <textarea
+            id="id_body"
+            name="body"
+            rows="4"
+            class="form-control"
+            placeholder="내용을 입력하세요..."
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="id_url" class="form-label">URL</label>
+          <input
+            type="url"
+            id="id_url"
+            name="url"
+            class="form-control"
+            placeholder="https://example.com"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="id_attachment" class="form-label">파일 첨부</label>
+          <input
+            type="file"
+            id="id_attachment"
+            name="attachment"
+            class="form-control"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg">
+          과제 제출
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="d-flex justify-content-between mt-4">
+    {% if prev_item_url %}
+      <a class="btn btn-outline-secondary btn-sm" href="{{ prev_item_url }}">
+        &laquo; Previous
+      </a>
+    {% else %}
+      <span></span>
+    {% endif %}
+
+    {% if next_item_url %}
+      <a class="btn btn-primary btn-sm" href="{{ next_item_url }}">
+        Next &raquo;
+      </a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block course_sidebar %}
+  <div class="mb-4">
+    <h6 class="text-uppercase text-muted small mb-2">Submission Details</h6>
+    {% if latest_submission %}
+      <ul class="list-group list-group-flush small">
+        <li class="list-group-item px-0">
+          <strong>Status:</strong>
+          {{ latest_submission.workflow_state|title }}
+        </li>
+        <li class="list-group-item px-0">
+          <strong>Submitted at:</strong>
+          {{ latest_submission.submitted_at }}
+        </li>
+        {% if latest_submission.body %}
+          <li class="list-group-item px-0">
+            <strong>Text:</strong>
+            <div class="mt-1 text-muted">
+              {{ latest_submission.body|truncatechars:120 }}
+            </div>
+          </li>
+        {% endif %}
+        {% if latest_submission.url %}
+          <li class="list-group-item px-0">
+            <strong>URL:</strong>
+            <a href="{{ latest_submission.url }}" target="_blank">
+              {{ latest_submission.url }}
+            </a>
+          </li>
+        {% endif %}
+        {% if latest_submission.attachment %}
+          <li class="list-group-item px-0">
+            <strong>File:</strong>
+            <a href="{{ latest_submission.attachment.url }}" target="_blank">
+              {{ latest_submission.attachment.name }}
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    {% else %}
+      <p class="small text-muted mb-0">
+        No submissions yet.
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="mb-4">
+    <h6 class="text-uppercase text-muted small mb-2">Coming Up</h6>
+    <ul class="list-group list-group-flush small">
+      <li class="list-group-item px-0">
+        <span class="text-muted">No upcoming events</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="d-grid">
+    <button class="btn btn-outline-secondary btn-sm" type="button">
+      View Course Stream
+    </button>
+  </div>
+
+  {% if request.GET.submitted %}
+    <script>
+      // Simple confetti-like effect using emojis
+      document.addEventListener("DOMContentLoaded", function () {
+        const emojis = ["🎉", "✨", "🎊"];
+        const container = document.body;
+        for (let i = 0; i < 40; i++) {
+          const span = document.createElement("span");
+          span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          span.style.position = "fixed";
+          span.style.left = Math.random() * 100 + "vw";
+          span.style.top = "-10px";
+          span.style.fontSize = "1.5rem";
+          span.style.animation = "fall 2s linear infinite";
+          span.style.animationDelay = Math.random() * 2 + "s";
+          container.appendChild(span);
+        }
+      });
+
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes fall {
+          0% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(110vh); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    </script>
+  {% endif %}
+{% endblock %}
+

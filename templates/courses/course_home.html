@@ -1,0 +1,65 @@
+{% extends "courses/course_base.html" %}
+
+{% block course_content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Modules</h2>
+  </div>
+
+  {% if modules %}
+    <div class="accordion" id="modulesAccordion">
+      {% for module in modules %}
+        <div class="accordion-item mb-2">
+          <h2 class="accordion-header" id="moduleHeading{{ module.id }}">
+            <button
+              class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#moduleCollapse{{ module.id }}"
+              aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-controls="moduleCollapse{{ module.id }}"
+            >
+              {{ module.name }}
+            </button>
+          </h2>
+          <div
+            id="moduleCollapse{{ module.id }}"
+            class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+            aria-labelledby="moduleHeading{{ module.id }}"
+            data-bs-parent="#modulesAccordion"
+          >
+            <div class="accordion-body p-0">
+              <ul class="list-group list-group-flush">
+                {% for item in module.items.all %}
+                  <li class="list-group-item d-flex align-items-center">
+                    {% with model_name=item.content_type.model %}
+                      {% if model_name == 'page' %}
+                        <i class="bi bi-file-text me-2 text-primary"></i>
+                      {% elif model_name == 'assignment' %}
+                        <i class="bi bi-pencil-square me-2 text-success"></i>
+                      {% elif model_name == 'quiz' %}
+                        <i class="bi bi-question-circle me-2 text-danger"></i>
+                      {% else %}
+                        <i class="bi bi-file-earmark me-2 text-secondary"></i>
+                      {% endif %}
+                    {% endwith %}
+                    <a
+                      href="{% url 'module_item_detail' course.id item.id %}"
+                      class="flex-grow-1 text-decoration-none text-reset"
+                    >
+                      {{ item.content_object }}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      There are no modules in this course yet.
+    </div>
+  {% endif %}
+{% endblock %}
+

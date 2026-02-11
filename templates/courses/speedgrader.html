@@ -1,0 +1,131 @@
+{% extends "courses/course_base.html" %}
+
+{% block course_breadcrumbs %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'course_detail' course.id %}">Modules</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'submission_list' assignment.id %}">Submissions</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        SpeedGrader – {{ submission.user.get_full_name|default:submission.user.username }}
+      </li>
+    </ol>
+  </nav>
+{% endblock %}
+
+{% block course_content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">
+      {{ assignment.title }} –
+      {{ submission.user.get_full_name|default:submission.user.username }}
+    </h2>
+
+    <div class="btn-group btn-group-sm" role="group">
+      {% if prev_submission_url %}
+        <a href="{{ prev_submission_url }}" class="btn btn-outline-secondary">
+          &laquo; Previous Student
+        </a>
+      {% endif %}
+      {% if next_submission_url %}
+        <a href="{{ next_submission_url }}" class="btn btn-outline-secondary">
+          Next Student &raquo;
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Left: Submission preview -->
+    <div class="col-lg-8 mb-4">
+      <div class="card">
+        <div class="card-header">
+          Submission Preview
+        </div>
+        <div class="card-body">
+          {% if submission.body %}
+            <h6 class="text-muted">Text Entry</h6>
+            <div class="border rounded p-2 mb-3" style="white-space: pre-wrap;">
+              {{ submission.body }}
+            </div>
+          {% endif %}
+
+          {% if submission.url %}
+            <h6 class="text-muted">URL</h6>
+            <p>
+              <a href="{{ submission.url }}" target="_blank">
+                {{ submission.url }}
+              </a>
+            </p>
+          {% endif %}
+
+          {% if submission.attachment %}
+            <h6 class="text-muted">File Upload</h6>
+            <p>
+              <a href="{{ submission.attachment.url }}" target="_blank">
+                Download File ({{ submission.attachment.name }})
+              </a>
+            </p>
+          {% endif %}
+
+          {% if not submission.body and not submission.url and not submission.attachment %}
+            <p class="text-muted mb-0">
+              No content submitted for this attempt.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Grading sidebar -->
+    <div class="col-lg-4 mb-4">
+      <div class="card">
+        <div class="card-header">
+          Grade
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="id_score" class="form-label">Score</label>
+              <div class="input-group input-group-sm">
+                <input
+                  type="number"
+                  step="0.01"
+                  id="id_score"
+                  name="score"
+                  class="form-control"
+                  value="{{ submission.score }}"
+                />
+                <span class="input-group-text">
+                  / {{ assignment.points_possible }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="id_feedback" class="form-label">Feedback</label>
+              <textarea
+                id="id_feedback"
+                name="feedback"
+                rows="5"
+                class="form-control form-control-sm"
+              >{{ submission.feedback }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm">
+              Submit Grade
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

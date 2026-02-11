@@ -1,0 +1,42 @@
+{% extends "courses/course_base.html" %}
+
+{% block course_breadcrumbs %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'course_detail' course.id %}">{{ course.course_code }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        강의 목차 (동영상)
+      </li>
+    </ol>
+  </nav>
+{% endblock %}
+
+{% block course_content %}
+  <h2 class="h5 mb-3">강의 목차 (동영상)</h2>
+
+  {% if videos %}
+    <ul class="list-group list-group-flush">
+      {% for video in videos %}
+        <li class="list-group-item d-flex align-items-center">
+          <i class="bi bi-play-circle-fill me-2 text-primary" style="font-size: 1.5rem;"></i>
+          <a
+            href="{% url 'video_detail' video.id %}"
+            class="text-decoration-none text-reset flex-grow-1"
+          >
+            {{ video.title }}
+          </a>
+          <span class="badge bg-secondary">{{ video.duration }}초</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info">
+      등록된 동영상이 없습니다.
+    </div>
+  {% endif %}
+{% endblock %}

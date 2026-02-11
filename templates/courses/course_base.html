@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.name }} | Canvas-like LMS{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Course Navigation (left column) -->
+      <nav class="col-md-2 col-lg-2 mb-4 border-end">
+        <h5 class="mt-2 mb-3">{{ course.name }}</h5>
+        <ul class="nav nav-pills flex-column small">
+          <li class="nav-item">
+            <a
+              class="nav-link {% if active_tab == 'home' %}active{% endif %}"
+              href="{% url 'course_detail' course.id %}"
+            >
+              <i class="bi bi-house-door me-1"></i> 홈
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if active_tab == 'modules' %}active{% endif %}"
+              href="{% url 'video_list' course.id %}"
+            >
+              <i class="bi bi-view-list me-1"></i> 강의 목차
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if active_tab == 'assignments' %}active{% endif %}"
+              href="#"
+              onclick="alert('과제 목록 페이지는 개발 중입니다.'); return false;"
+            >
+              <i class="bi bi-card-checklist me-1"></i> 과제
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if active_tab == 'quizzes' %}active{% endif %}"
+              href="#"
+              onclick="alert('퀴즈 목록은 개발 중입니다.'); return false;"
+            >
+              <i class="bi bi-question-square me-1"></i> 시험
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if active_tab == 'grades' %}active{% endif %}"
+              href="#"
+              onclick="alert('성적부 페이지는 개발 중입니다.'); return false;"
+            >
+              <i class="bi bi-bar-chart me-1"></i> 성적
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link {% if active_tab == 'people' %}active{% endif %}"
+              href="#"
+              onclick="alert('수강생 목록은 개발 중입니다.'); return false;"
+            >
+              <i class="bi bi-people me-1"></i> 수강생
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main content (center column) -->
+      <section class="col-md-7 col-lg-7 mb-4">
+        {% block course_breadcrumbs %}
+          <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a href="{% url 'dashboard' %}">Home</a>
+              </li>
+              <li class="breadcrumb-item">
+                {{ course.course_code }}
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">
+                Modules
+              </li>
+            </ol>
+          </nav>
+        {% endblock %}
+
+        {% block course_content %}{% endblock %}
+      </section>
+
+      <!-- Right sidebar (To Do, Coming Up) -->
+      <aside class="col-md-3 col-lg-3">
+        {% block course_sidebar %}
+          <div class="mb-4">
+            <h6 class="text-uppercase text-muted small mb-2">To Do</h6>
+            <ul class="list-group list-group-flush small">
+              <li class="list-group-item px-0">
+                <strong>Position Paper</strong><br />
+                <span class="text-muted">Due Soon</span>
+              </li>
+              <li class="list-group-item px-0">
+                <strong>Revolution Quiz</strong><br />
+                <span class="text-muted">Upcoming Quiz</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h6 class="text-uppercase text-muted small mb-2">Coming Up</h6>
+            <ul class="list-group list-group-flush small">
+              <li class="list-group-item px-0">
+                <span class="text-muted">No upcoming events</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="d-grid">
+            <button class="btn btn-outline-secondary btn-sm" type="button">
+              View Course Stream
+            </button>
+          </div>
+        {% endblock %}
+      </aside>
+    </div>
+  </div>
+{% endblock %}
+

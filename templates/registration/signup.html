@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}회원가입 | K-LMS{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-sm" style="max-width: 380px; width: 100%;">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3 text-center">회원가입</h1>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2">
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">
+              이메일 (ID)
+            </label>
+            <input
+              type="email"
+              name="{{ form.username.name }}"
+              class="form-control"
+              id="{{ form.username.id_for_label }}"
+              value="{{ form.username.value|default:'' }}"
+              placeholder="example@email.com"
+              autofocus
+            />
+            {% if form.username.errors %}
+              <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+              이름
+            </label>
+            <input
+              type="text"
+              name="{{ form.first_name.name }}"
+              class="form-control"
+              id="{{ form.first_name.id_for_label }}"
+              value="{{ form.first_name.value|default:'' }}"
+              placeholder="홍길동"
+            />
+            {% if form.first_name.errors %}
+              <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.password1.id_for_label }}" class="form-label">
+              비밀번호
+            </label>
+            <input
+              type="password"
+              name="{{ form.password1.name }}"
+              class="form-control"
+              id="{{ form.password1.id_for_label }}"
+            />
+            {% if form.password1.errors %}
+              <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.password2.id_for_label }}" class="form-label">
+              비밀번호 확인
+            </label>
+            <input
+              type="password"
+              name="{{ form.password2.name }}"
+              class="form-control"
+              id="{{ form.password2.id_for_label }}"
+            />
+            {% if form.password2.errors %}
+              <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="is_instructor"
+                id="id_is_instructor"
+                {% if form.is_instructor.value %}checked{% endif %}
+              />
+              <label class="form-check-label" for="id_is_instructor">
+                선생님 계정으로 가입
+              </label>
+            </div>
+          </div>
+
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary">
+              회원가입
+            </button>
+          </div>
+
+          <div class="text-center">
+            <span class="text-muted small">이미 계정이 있으신가요?</span>
+            <a href="{% url 'login' %}" class="small text-decoration-none ms-1">로그인</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

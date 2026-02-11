@@ -1,0 +1,45 @@
+{% extends "courses/course_base.html" %}
+
+{% block course_breadcrumbs %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'dashboard' %}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'course_detail' course.id %}">Modules</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ page.title }}
+      </li>
+    </ol>
+  </nav>
+{% endblock %}
+
+{% block course_content %}
+  <article class="card">
+    <div class="card-body">
+      <h1 class="h4 mb-3">{{ page.title }}</h1>
+      <div class="page-body">
+        {{ page.body|safe }}
+      </div>
+    </div>
+  </article>
+
+  <div class="d-flex justify-content-between mt-4">
+    {% if prev_item_url %}
+      <a class="btn btn-outline-secondary btn-sm" href="{{ prev_item_url }}">
+        &laquo; Previous
+      </a>
+    {% else %}
+      <span></span>
+    {% endif %}
+
+    {% if next_item_url %}
+      <a class="btn btn-primary btn-sm" href="{{ next_item_url }}">
+        Next &raquo;
+      </a>
+    {% endif %}
+  </div>
+{% endblock %}
+
