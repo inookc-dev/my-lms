@@ -1,0 +1,47 @@
+# K-LMS .gitignore - 배포/개발 제외 항목
+
+# 가상환경
+venv/
+.venv/
+env/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# 로컬 DB
+db.sqlite3
+*.sqlite3
+
+# 환경 변수 (비밀키 등)
+.env
+.env.local
+.env.*.local
+
+# 정적 파일 모음 (collectstatic 결과)
+staticfiles/
+
+# 업로드 미디어 (개발 시 로컬 파일)
+media/
+
+# IDE / 에디터
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
+logs/
