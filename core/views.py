@@ -2,14 +2,24 @@ import json
 
 from django.contrib.auth import login
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
 
-from courses.models import Assignment, Course, Module, ModuleItem, Page, Submission
+from courses.models import (
+    Assignment,
+    Course,
+    Enrollment,
+    Module,
+    ModuleItem,
+    Page,
+    Section,
+    Submission,
+)
 from courses.views import _user_is_teacher_for_course
 from .models import Account, Term, User, Video, VideoProgress
 from .serializers import AccountSerializer, TermSerializer, UserSerializer
@@ -34,6 +44,41 @@ class AccountViewSet(viewsets.ModelViewSet):
 class TermViewSet(viewsets.ModelViewSet):
     queryset = Term.objects.all().order_by("start_date", "end_date")
     serializer_class = TermSerializer
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url="/")
+def admin_dashboard(request):
+    """
+    관리자 전용 대시보드. Admin Analytics 스타일.
+    """
+    total_users = User.objects.count()
+    student_count = User.objects.filter(
+        enrollments__role="student",
+    ).distinct().count()
+    teacher_count = User.objects.filter(
+        Q(enrollments__role="teacher") | Q(is_staff=True),
+    ).distinct().count()
+
+    total_courses = Course.objects.count()
+    total_enrollments = Enrollment.objects.count()
+
+    today_completed = VideoProgress.objects.filter(is_completed=True).count()
+
+    recent_users = User.objects.order_by("-date_joined")[:5]
+    recent_courses = Course.objects.select_related("term").order_by("-id")[:5]
+
+    context = {
+        "total_users": total_users,
+        "student_count": student_count,
+        "teacher_count": teacher_count,
+        "total_courses": total_courses,
+        "total_enrollments": total_enrollments,
+        "today_completed": today_completed,
+        "recent_users": recent_users,
+        "recent_courses": recent_courses,
+    }
+    return render(request, "custom_admin/dashboard.html", context)
 
 
 def course_catalog(request):
@@ -150,13 +195,71 @@ def signup(request):
 @login_required
 def dashboard(request):
     """
-    Simple dashboard view.
-    For now, it shows all courses as Canvas-like course cards.
+    내 강의실 대시보드. 수강 중인 강의만 카드 형태로 표시.
+    각 강의별 진도율(VideoProgress 기반) 계산.
     """
+    enrollments = (
+        Enrollment.objects.filter(
+            user=request.user,
+            section__course__isnull=False,
+        )
+        .select_related("section__course__term")
+        .order_by("section__course__name")
+    )
 
-    courses = Course.objects.select_related("term").all()
+    course_cards = []
+    seen_course_ids = set()
+
+    for enr in enrollments:
+        course = enr.section.course
+        if course.id in seen_course_ids:
+            continue
+        seen_course_ids.add(course.id)
+
+        teacher = (
+            Enrollment.objects.filter(
+                section__course=course,
+                role="teacher",
+            )
+            .select_related("user")
+            .first()
+        )
+        teacher_name = (
+            teacher.user.get_full_name() or teacher.user.username
+            if teacher
+            else "-"
+        )
+
+        total_videos = Video.objects.filter(course=course).count()
+        completed_videos = VideoProgress.objects.filter(
+            user=request.user,
+            video__course=course,
+            is_completed=True,
+        ).count()
+        progress = (
+            int((completed_videos / total_videos) * 100)
+            if total_videos > 0
+            else 0
+        )
+
+        colors = [
+            ("#4a90d9", "#357abd"),
+            ("#7b68ee", "#5a4fd6"),
+            ("#50c878", "#3da55c"),
+            ("#e74c3c", "#c0392b"),
+            ("#f39c12", "#d68910"),
+        ]
+        color_pair = colors[len(course_cards) % len(colors)]
+
+        course_cards.append({
+            "course": course,
+            "teacher": teacher_name,
+            "progress": min(100, progress),
+            "bg_color": f"linear-gradient(135deg, {color_pair[0]}, {color_pair[1]})",
+        })
+
     context = {
-        "courses": courses,
+        "course_cards": course_cards,
     }
     return render(request, "dashboard.html", context)
 

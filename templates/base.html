@@ -155,6 +155,11 @@
 
       <div class="top-header-right">
         {% if user.is_authenticated %}
+          {% if user.is_superuser %}
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-danger btn-sm">
+              관리자 페이지
+            </a>
+          {% endif %}
           <span class="text-muted small me-1">
             {{ user.username }}님 환영합니다
           </span>

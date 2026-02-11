@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}관리자 대시보드 | K-LMS{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <h1 class="h4 mb-4">관리자 대시보드</h1>
+
+    <!-- 통계 카드 4개 -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <p class="text-muted small mb-1">총 회원 수</p>
+                <h2 class="mb-0 fw-bold">{{ total_users }}</h2>
+                <small class="text-muted">학생 {{ student_count }} · 강사 {{ teacher_count }}</small>
+              </div>
+              <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <p class="text-muted small mb-1">개설 강의 수</p>
+                <h2 class="mb-0 fw-bold">{{ total_courses }}</h2>
+              </div>
+              <i class="bi bi-journal-bookmark-fill text-success" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <p class="text-muted small mb-1">수강 신청 건수</p>
+                <h2 class="mb-0 fw-bold">{{ total_enrollments }}</h2>
+              </div>
+              <i class="bi bi-clipboard-check-fill text-info" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <p class="text-muted small mb-1">출석 완료 수</p>
+                <h2 class="mb-0 fw-bold">{{ today_completed }}</h2>
+              </div>
+              <i class="bi bi-check-circle-fill text-warning" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 최근 가입자 & 최근 개설 강좌 -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-bottom">
+            <h6 class="mb-0">최근 가입자</h6>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_users %}
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>이름</th>
+                    <th>이메일</th>
+                    <th>가입일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for u in recent_users %}
+                    <tr>
+                      <td>{{ u.get_full_name|default:u.username }}</td>
+                      <td>{{ u.email }}</td>
+                      <td>{{ u.date_joined|date:"Y-m-d" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="p-3 text-muted mb-0">등록된 회원이 없습니다.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-bottom">
+            <h6 class="mb-0">최근 개설 강좌</h6>
+          </div>
+          <div class="card-body p-0">
+            {% if recent_courses %}
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>강의명</th>
+                    <th>강의코드</th>
+                    <th>학기</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in recent_courses %}
+                    <tr>
+                      <td>
+                        <a href="{% url 'course_detail' c.id %}" class="text-decoration-none">
+                          {{ c.name }}
+                        </a>
+                      </td>
+                      <td>{{ c.course_code }}</td>
+                      <td>{{ c.term.name }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="p-3 text-muted mb-0">등록된 강의가 없습니다.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 관리자 기능 -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-bottom">
+        <h6 class="mb-0">관리자 기능</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'admin:courses_course_add' %}" class="btn btn-primary">
+            강의 추가하러 가기
+          </a>
+          <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+            Django Admin (고급 설정)으로 이동
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

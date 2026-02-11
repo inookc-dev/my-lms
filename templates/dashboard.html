@@ -1,27 +1,50 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | Canvas-like LMS{% endblock %}
+{% block title %}내 강의실 | K-LMS{% endblock %}
 
 {% block content %}
   <div class="container-fluid">
-    <h1 class="mb-4">Dashboard</h1>
+    <h1 class="h4 mb-4">내 강의실</h1>
 
-    {% if courses %}
-      <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for course in courses %}
+    {% if course_cards %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        {% for item in course_cards %}
           <div class="col">
-            <div class="card shadow-sm h-100">
+            <div class="card shadow-sm h-100 overflow-hidden">
+              <!-- 썸네일: 없으면 랜덤 색상 배경 -->
+              <div
+                class="card-img-top d-flex align-items-center justify-content-center text-white"
+                style="height: 120px; background: {{ item.bg_color }}; font-size: 2.5rem;"
+              >
+                <i class="bi bi-journal-bookmark-fill opacity-75"></i>
+              </div>
               <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ course.name }}</h5>
-                <p class="card-subtitle text-muted mb-2">
-                  {{ course.term.name }}{% if course.term.start_date %} ({{ course.term.start_date }} – {{ course.term.end_date }}){% endif %}
+                <h5 class="card-title fw-bold">{{ item.course.name }}</h5>
+                <p class="card-text text-muted small mb-2">
+                  {{ item.teacher }}
                 </p>
-                <p class="card-text text-secondary small">
-                  Course Code: {{ course.course_code }}
-                </p>
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span>진도율</span>
+                    <span>{{ item.progress }}%</span>
+                  </div>
+                  <div class="progress" style="height: 6px;">
+                    <div
+                      class="progress-bar bg-primary"
+                      role="progressbar"
+                      style="width: {{ item.progress }}%;"
+                      aria-valuenow="{{ item.progress }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                </div>
                 <div class="mt-auto">
-                  <a href="{% url 'course_detail' course.id %}" class="btn btn-primary btn-sm">
-                    Go to Course
+                  <a
+                    href="{% url 'course_detail' item.course.id %}"
+                    class="btn btn-primary btn-sm w-100"
+                  >
+                    학습하기
                   </a>
                 </div>
               </div>
@@ -30,10 +53,13 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="alert alert-info">
-        등록된 강의가 없습니다.
+      <div class="d-flex flex-column align-items-center justify-content-center py-5">
+        <i class="bi bi-journal-x text-muted mb-3" style="font-size: 4rem;"></i>
+        <p class="text-muted mb-4">아직 수강 신청한 강의가 없습니다.</p>
+        <a href="{% url 'course_catalog' %}" class="btn btn-primary btn-lg">
+          수강신청 하러가기
+        </a>
       </div>
     {% endif %}
   </div>
 {% endblock %}
-

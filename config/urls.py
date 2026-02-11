@@ -22,6 +22,7 @@ from django.urls import include, path
 
 from core.views import (
     LogoutViewAllowGet,
+    admin_dashboard,
     course_catalog,
     enroll_course,
     dashboard,
@@ -30,6 +31,7 @@ from core.views import (
 
 urlpatterns = [
     path("", dashboard, name="dashboard"),
+    path("custom-admin/", admin_dashboard, name="admin_dashboard"),
     path("catalog/", course_catalog, name="course_catalog"),
     path("courses/<int:course_id>/enroll/", enroll_course, name="enroll_course"),
     path(
