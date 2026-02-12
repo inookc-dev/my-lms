@@ -128,17 +128,34 @@
         <li class="list-group-item px-0">
  <!-- Status 표시 -->
 <div style="margin-bottom: 10px;">
-  <!-- 1. 상태 (필터 없이 원본 값 출력) -->
-<div style="margin-bottom: 10px;">
-  <strong>Status (Debug):</strong>
-  <span>{{ latest_submission.workflow_state }}</span>
-</div>
+ <!-- 최종 수정된 사이드바 코드 -->
+<div class="submission-details">
+    
+  <!-- 1. 상태 (Status) -->
+  <div style="margin-bottom: 15px;">
+      <strong>Status:</strong>
+      <!-- |title 필터를 써서 화면엔 'Graded'로 예쁘게 보여줌 -->
+      <span class="status-label">{{ latest_submission.workflow_state|title }}</span>
+  </div>
 
-<!-- 2. 점수 (조건문 없이 강제 출력) -->
-<div style="margin-bottom: 15px; border: 2px solid red; padding: 10px; background: #fff0f0;">
-  <strong style="color: red;">[강제 출력 테스트]</strong><br>
-  <strong>Score:</strong> {{ latest_submission.score }} <br>
-  <strong>Points:</strong> {{ assignment.points_possible }}
+  <!-- 2. 점수 (Grade) -->
+  <!-- 수정 포인트: 'graded' (소문자)로 확인! -->
+  {% if latest_submission.workflow_state == 'graded' %}
+      <div style="margin-bottom: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
+          <strong style="display: block; margin-bottom: 5px;">Grade:</strong>
+          <span style="font-size: 2em; font-weight: bold; color: #2D3B45;">
+              {{ latest_submission.score }}
+          </span>
+          <span style="color: #666; font-size: 1.2em;"> / {{ assignment.points_possible }}</span>
+      </div>
+  {% endif %}
+
+  <!-- 3. 제출 시간 -->
+  <div style="font-size: 0.9em; color: #555;">
+      <strong>Submitted at:</strong><br>
+      {{ latest_submission.submitted_at|date:"M d, Y, g:i a" }}
+  </div>
+
 </div>
         </li>
         <li class="list-group-item px-0">
