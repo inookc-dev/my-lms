@@ -126,8 +126,22 @@
     {% if latest_submission %}
       <ul class="list-group list-group-flush small">
         <li class="list-group-item px-0">
-          <strong>Status:</strong>
-          {{ latest_submission.workflow_state|title }}
+ <!-- Status 표시 -->
+<div style="margin-bottom: 10px;">
+  <strong>Status:</strong>
+  <span class="status-label">{{ latest_submission.workflow_state|title }}</span>
+</div>
+
+<!-- Grade (점수) 표시: 채점된 경우에만 보임 -->
+{% if latest_submission.workflow_state == 'Graded' %}
+  <div style="margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+      <strong>Grade:</strong><br>
+      <span style="font-size: 2em; font-weight: bold; color: #2D3B45;">
+          {{ latest_submission.score }}
+      </span>
+      <span style="color: #666;"> / {{ assignment.points_possible }}</span>
+  </div>
+{% endif %}
         </li>
         <li class="list-group-item px-0">
           <strong>Submitted at:</strong>
