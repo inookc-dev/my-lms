@@ -130,6 +130,17 @@
 <div style="margin-bottom: 10px;">
   <strong>Status:</strong>
   <span class="status-label">{{ latest_submission.workflow_state|title }}</span>
+  <!-- 점수 보여주기 코드 시작 -->
+{% if latest_submission.workflow_state == 'Graded' %}
+<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+    <strong style="font-size: 1.2em;">Grade:</strong>
+    <span style="font-size: 1.5em; font-weight: bold; color: #2D3B45;">
+        {{ latest_submission.score }}
+    </span>
+    <span style="color: #555;"> / {{ assignment.points_possible }}</span>
+</div>
+{% endif %}
+<!-- 점수 보여주기 코드 끝 -->
 </div>
 
 <!-- Grade (점수) 표시: 채점된 경우에만 보임 -->
