@@ -128,31 +128,18 @@
         <li class="list-group-item px-0">
  <!-- Status 표시 -->
 <div style="margin-bottom: 10px;">
-  <strong>Status:</strong>
-  <span class="status-label">{{ latest_submission.workflow_state|title }}</span>
-  <!-- 점수 보여주기 코드 시작 -->
-{% if latest_submission.workflow_state == 'Graded' %}
-<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
-    <strong style="font-size: 1.2em;">Grade:</strong>
-    <span style="font-size: 1.5em; font-weight: bold; color: #2D3B45;">
-        {{ latest_submission.score }}
-    </span>
-    <span style="color: #555;"> / {{ assignment.points_possible }}</span>
-</div>
-{% endif %}
-<!-- 점수 보여주기 코드 끝 -->
+  <!-- 1. 상태 (필터 없이 원본 값 출력) -->
+<div style="margin-bottom: 10px;">
+  <strong>Status (Debug):</strong>
+  <span>{{ latest_submission.workflow_state }}</span>
 </div>
 
-<!-- Grade (점수) 표시: 채점된 경우에만 보임 -->
-{% if latest_submission.workflow_state == 'Graded' %}
-  <div style="margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-      <strong>Grade:</strong><br>
-      <span style="font-size: 2em; font-weight: bold; color: #2D3B45;">
-          {{ latest_submission.score }}
-      </span>
-      <span style="color: #666;"> / {{ assignment.points_possible }}</span>
-  </div>
-{% endif %}
+<!-- 2. 점수 (조건문 없이 강제 출력) -->
+<div style="margin-bottom: 15px; border: 2px solid red; padding: 10px; background: #fff0f0;">
+  <strong style="color: red;">[강제 출력 테스트]</strong><br>
+  <strong>Score:</strong> {{ latest_submission.score }} <br>
+  <strong>Points:</strong> {{ assignment.points_possible }}
+</div>
         </li>
         <li class="list-group-item px-0">
           <strong>Submitted at:</strong>
