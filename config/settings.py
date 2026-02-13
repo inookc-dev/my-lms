@@ -72,12 +72,30 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# settings.py의 DATABASES 부분을 이걸로 교체하세요!
+
+# 기본값은 로컬의 '종이 공책(sqlite3)'입니다.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# 만약 비밀 장부(.env)에 'DB_HOST'라는 정보가 있다면, '강철 금고(MySQL)'로 전환합니다!
+if config('DB_HOST', default=None):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
+    }
 
 AUTH_USER_MODEL = "core.User"
 
