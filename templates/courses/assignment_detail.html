@@ -192,6 +192,18 @@
         No submissions yet.
       </p>
     {% endif %}
+    <!-- 피드백(Feedback) 표시 코드 시작 -->
+{% if latest_submission.feedback %}
+<div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+    <h4 style="margin: 0 0 10px 0; font-size: 1.1em; color: #2D3B45;">
+        <i class="fas fa-comment"></i> Feedback
+    </h4>
+    <div style="background-color: #e8f4f8; padding: 10px; border-radius: 5px; font-size: 0.95em; color: #333;">
+        {{ latest_submission.feedback|linebreaks }}
+    </div>
+</div>
+{% endif %}
+<!-- 피드백(Feedback) 표시 코드 끝 -->
   </div>
 
   <div class="mb-4">
