@@ -204,6 +204,16 @@
 </div>
 {% endif %}
 <!-- 피드백(Feedback) 표시 코드 끝 -->
+ <!-- Feedback 강제 출력 (디버깅용) -->
+<div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
+  <h4 style="margin: 0 0 5px 0; font-size: 1.1em; color: #2D3B45;">Feedback Check:</h4>
+  
+  <!-- 1. latest_submission 변수로 시도 -->
+  <p><strong>Method A:</strong> {{ latest_submission.feedback }}</p>
+  
+  <!-- 2. submission 변수로 시도 (혹시 변수명이 다를까봐) -->
+  <p><strong>Method B:</strong> {{ submission.feedback }}</p>
+</div>
   </div>
 
   <div class="mb-4">
